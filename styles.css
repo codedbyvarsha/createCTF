@@ -1,0 +1,15 @@
+body {
+    background-color: #CCDBEE;
+}
+.flag-box {
+    width: 300px;
+    padding: 20px;
+    margin: 50px auto;
+    border: 2px solid #233C67;
+    background-color: #99AFD7;
+    text-align: center;
+    font-size: 1.2em;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 8px;
+}

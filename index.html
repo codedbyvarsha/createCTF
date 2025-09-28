@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>hackUMBC CTF</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>hackUMBC CTF</h1>
+    <h2>Instructions</h2>
+    <p>Welcome to this fun CTF page, or "Capture the Flag"! This is where you will find fun cybersecurity problems to solve!</p>
+    <p>Here, we will co</p>
+    <p>Let's get started! Type your answer in the format <strong>hackUMBC{type answer here}</strong>. Let's go!</p>
+
+    <div class="problem-trigger" id="start-challenge-btn" onclick="showProblem(0)"
+        style="width: 300px; padding: 20px; border: 3px solid #233C67; background-color: #99AFD7; 
+               text-align: center; cursor: pointer; border-radius: 8px; font-weight: bold;">
+        Begin Your First Challenge!
+    </div>
+
+    <div id="problem-content-0" style="display: none; margin-top: 30px; padding: 15px; border: 1px solid #ccc;">
+        <h3>Challenge 1: Food Culture</h3>
+        <p id="question-0" style="font-weight: bold; font-size: 1.1em;"></p>
+
+        <div class="flag-box" onclick="openFlagPrompt(0)" 
+            style="width: 200px; padding: 10px; border: 2px solid #007bff; background-color: #f0f8ff; 
+                   text-align: center; cursor: pointer; margin-top: 15px;">
+            Click Here to Enter Flag!
+        </div>
+
+        <button onclick="revealHint(0)" style="margin-top: 15px; padding: 8px 15px;">Reveal Hint (Use Sparingly!)</button>
+        
+        <div id="hint-0" style="display: none; color: darkred; margin-top: 10px; padding: 5px; border-left: 3px solid darkred;"></div>
+    </div>
+
+    <script>
+        const answers = ["cheese"];
+        const hints = ["You remember... macaroni and cheese, everybody freeze!"];
+        const questions = ["What goes well with macaroni?"];
+        
+        const FLAG_PREFIX = "hackUMBC{";
+        const FLAG_SUFFIX = "}";
+    
+        function redirectToChallenges() {
+            window.location.href = "challenges.html";
+        }
+    
+    
+        function showProblem(numProblem) {
+            const container = document.getElementById(`problem-content-0`);
+            const questionElement = document.getElementById(`question-0`);
+            
+            questionElement.innerText = questions[0];
+            container.style.display = 'block';
+    
+            document.getElementById("start-challenge-btn").style.display = 'none';
+        }
+    
+        function openFlagPrompt(numProblem) {
+            let rawFlag = prompt("Enter your full flag below (e.g., " + FLAG_PREFIX + "answer" + FLAG_SUFFIX + "):");
+    
+            if (rawFlag === null) return;
+    
+            const CORRECT_FLAG = (FLAG_PREFIX + answers[0] + FLAG_SUFFIX).toLowerCase();
+            const userFlag = rawFlag.toLowerCase().trim();
+    
+            if (userFlag === CORRECT_FLAG) {
+                alert("🎉 Correct! Flag accepted. Redirecting you to the challenges hub!");
+                redirectToChallenges(); 
+            } else {
+                alert("Incorrect! Please try again.");
+            }
+        }
+    
+        function revealHint(numProblem) {
+            const hintText = hints[0];
+            const hintElement = document.getElementById(`hint-0`);
+            
+            hintElement.innerHTML = "<strong>Hint:</strong> " + hintText;
+            hintElement.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

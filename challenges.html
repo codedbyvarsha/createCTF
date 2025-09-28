@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>hackUMBC CTF - Challenges</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <h1>The Challenge Hub</h1>
+    <p>Click on a challenge card below to reveal the puzzle! You have 8 challenges to solve.</p>
+
+    <div id="challenge-list" style="display: flex; flex-wrap: wrap; gap: 20px;">
+        
+        <div class="challenge-card" onclick="showProblem(0)" style="border: 2px solid #4CAF50; cursor: pointer;">
+            <h2>Challenge 01: DuckSpeak</h2>
+            <p>Category: Cipher</p>
+        </div>
+
+        <div class="challenge-card" onclick="showProblem(1)" style="border: 2px solid #2196F3; cursor: pointer;">
+            <h2>Challenge 02: Yum... Bacon</h2>
+            <p>Category: Cipher</p>
+        </div>
+
+        <div class="challenge-card" onclick="showProblem(2)" style="border: 2px solid #2196F3; cursor: pointer;">
+            <h2>Challenge 03: Backwards</h2>
+            <p>Category: Cipher</p>
+        </div>
+
+        <div class="challenge-card" onclick="showProblem(3)" style="border: 2px solid #FFC107; cursor: pointer;">
+            <h2>Challenge 04: Ave Maria...</h2>
+            <p>Category: Cipher</p>
+        </div>
+        
+        <div class="challenge-card" onclick="showProblem(4)" style="border: 2px solid #F44336; cursor: pointer;">
+            <h2>Challenge 05: Your Worst Nightmare</h2>
+            <p>Category: Malware Riddle</p>
+        </div>
+
+        <div class="challenge-card" onclick="showProblem(5)" style="border: 2px solid #F44336; cursor: pointer;">
+            <h2>Challenge 06: Will Make You Cry</h2>
+            <p>Category: Malware Riddle</p>
+        </div>
+
+        <div class="challenge-card" onclick="showProblem(6)" style="border: 2px solid #F44336; cursor: pointer;">
+            <h2>Challenge 07: Hostage</h2>
+            <p>Category: Malware Riddle</p>
+        </div>
+
+        <div class="challenge-card" onclick="showProblem(7)" style="border: 2px solid #F44336; cursor: pointer;">
+            <h2>Challenge 08: The Silent Overlord</h2>
+            <p>Category: Malware Riddle</p>
+        </div>
+
+    </div>
+
+    <div id="active-problem-container" style="display: none; margin-top: 50px; padding: 20px; border: 2px solid #ddd; border-radius: 8px;">
+        <h3 id="problem-title"></h3>
+        <p id="question-text" style="font-weight: bold; font-size: 1.1em; margin-bottom: 20px;"></p>
+
+        <div class="flag-box" onclick="openFlagPrompt_CurrentProblem()" 
+            style="width: 200px; padding: 10px; border: 2px solid #007bff; background-color: #f0f8ff; 
+                   text-align: center; cursor: pointer; border-radius: 4px;">
+            Click Here to Enter Flag!
+        </div>
+
+        <button onclick="revealHint_CurrentProblem()" style="margin-top: 15px; padding: 8px 15px; border: 1px solid #ccc; border-radius: 4px;">Reveal Hint (Use Sparingly!)</button>
+        
+        <div id="hint-text-area" style="display: none; color: darkred; margin-top: 10px; padding: 5px; border-left: 3px solid darkred;"></div>
+    </div>
+
+    <script>
+        let currentProblemIndex = -1; 
+
+        const answers = ["clock",
+        "sponge",
+        "egg",
+        "areyouasleepyet",
+        "worm",
+        "trojan",
+        "ransomware",
+        "rootkit",
+        ];
+        const hints = ["Focus on the double meaning of the word 'hands.' What everyday object has two of these to show different values?",
+        "This is a household object known for its absorbency and porous texture. It's often used for cleaning.",
+        "This isn't a physical object, but an agreement or commitment between people. What is the value of this item when intact?",
+        "The act of speaking the answer makes the answer inherently false. Consider the state you're in right before answering.",
+        "I travel through network vulnerabilities, burrowing from system to system all on my own.",
+        "My name comes from ancient Greek mythology, involving a large wooden animal.",
+        "My goal is to make a specific, non-physical demand in exchange for your data. Think digital kidnapping.",
+        "I am software that allows a user to keep control over a system while remaining hidden from the standard system utilities.",
+        ];
+        const questions = ["nak? Naknaknak Naknak Nak. Naknak Nanak Naknaknak Nak? Nananak Nak Naknak Nak. Naknak Nanak Naknaknak Nanananak Nananak Nak Naknak Nak. Naknak Nanak Naknak nak. Naknak Nak? Naknaknak Nanananak Nananak Nak Naknak Nananak Naknaknak nak? Naknaknak Nak? Nananak Nak Naknak Nanananak Naknak Nanak Naknak nak. Naknak nak. Naknak naknaknak Naknaknak Nak? Nananak Nak Naknak Nanananak Naknak naknak Naknak Nanak Naknaknak Nak Nanananak naknaknak", 
+        "BABAA AABBB AAAAA BAABA ABAAA BAAAB AABAB BAABB ABABA ABABA ABBAB AABAB AABBB ABBAB ABABA AABAA BAAAB AAAAB BAABB BAABA AAABA AAAAA ABBAA BAAAB BAABA ABAAA ABABA ABABA AABBB ABBAB ABABA AAABB BABAA AAAAA BAABA AABAA BAAAA",
+        "Dszg szh gl yv yilpvm yvuliv blf xzm fhv rg?",
+        "Auctor optimus Clemens pacificus Factor misericors Dominus omnipotens Redemptor sapientissimus Gloriosus rex Pius clemens Rex pastor Imperator auctor Rex dominus Misericors dominus Incompraehensibilis deus Sempiternus omnipotens Misericors magnus Fabricator conctipotens Dominus omnipotens Pacificus imperator",
+        "I spread without attachment, using the network as my host. I need no file to carry me, just a path to boast. I replicate and consume bandwidth, slowing down the whole stream. What am I?",
+        "I come hidden inside a tempting gift—a game, a PDF, or a useful utility. You invite me in willingly, but once inside, I drop my evil payload. I am not what I seem. What am I?",
+        "I seize your files and lock them tight with a key that only I hold. I demand payment, often in cryptocurrency, before I'll set your data free. What kind of modern threat am I?",
+        "Once I've entered your system, I work hard to hide myself and my malicious friends from the operating system. I give an attacker deep, sustained access, making them the hidden master of your machine. What am I?",
+        ];
+
+        const titles = [
+        "Challenge 01: Nak?",
+        "Challenge 02: Time Keeper",
+        "Challenge 03: The Water Holder",
+        "Challenge 04: The Cleric's Code",
+        "Challenge 05: The Independent Traveler",
+        "Challenge 06: The Deceiver",
+        "Challenge 07: The Hostage Taker",
+        "Challenge 08: The Silent Overlord"
+        ];
+
+        const FLAG_PREFIX = "hackUMBC{";
+        const FLAG_SUFFIX = "}";
+
+        function showProblem(numProblem) {
+            currentProblemIndex = numProblem; 
+
+            const container = document.getElementById('active-problem-container');
+            const titleElement = document.getElementById('problem-title');
+            const questionElement = document.getElementById('question-text');
+            const hintArea = document.getElementById('hint-text-area');
+
+            titleElement.innerText = titles[numProblem];
+            questionElement.innerText = questions[numProblem];
+            
+            hintArea.style.display = 'none';
+            hintArea.innerHTML = ''; 
+
+            container.style.display = 'block';
+        }
+
+        function openFlagPrompt_CurrentProblem() {
+            const numProblem = currentProblemIndex; 
+        
+            if (numProblem < 0 || numProblem >= answers.length) {
+                alert("Please select a challenge card first!");
+                return;
+            }
+
+            if (solvedChallenges.includes(numProblem)) {
+                alert("You already solved this challenge! Your score is already updated.");
+                return;
+            }
+
+            let rawFlag = prompt("Enter your full flag for " + titles[numProblem] + " (e.g., " + FLAG_PREFIX + "answer" + FLAG_SUFFIX + "):");
+
+            if (rawFlag === null) return; 
+
+            const CORRECT_FLAG = (FLAG_PREFIX + answers[numProblem] + FLAG_SUFFIX).toLowerCase();
+            const userFlag = rawFlag.toLowerCase().trim();
+
+            if (userFlag === CORRECT_FLAG) {
+            
+                updateScore(numProblem); 
+                
+                alert(`Correct! Flag accepted. You earned ${POINT_VALUE} points!`);
+            
+            } else {
+                alert("Incorrect! Please try again.");
+            }
+        }
+
+        function revealHint_CurrentProblem() {
+            const numProblem = currentProblemIndex; 
+            
+            if (numProblem < 0) {
+                alert("Please select a challenge card first!");
+                return;
+            }
+            
+            const hintText = hints[numProblem];
+            const hintElement = document.getElementById('hint-text-area');
+            
+            hintElement.innerHTML = "<strong>Hint:</strong> " + hintText;
+            hintElement.style.display = 'block';
+        }
+        
+        let score = 0;
+        const POINT_VALUE = 100;
+
+        let solvedChallenges = [];
+
+
+        function initializeScore() {
+            const storedScore = localStorage.getItem('ctf_score');
+            const storedSolved = localStorage.getItem('ctf_solved');
+
+            score = storedScore ? parseInt(storedScore) : 0;
+            solvedChallenges = storedSolved ? JSON.parse(storedSolved) : [];
+            
+            displayScore();
+        }
+
+        function displayScore() { 
+            let scoreDisplay = document.getElementById('score-display');
+            if (!scoreDisplay) {
+                // If it doesn't exist, create it dynamically
+                scoreDisplay = document.createElement('div');
+                scoreDisplay.id = 'score-display';
+                scoreDisplay.style.cssText = 'position: fixed; top: 10px; right: 10px; padding: 10px; background-color: #333; color: white; border-radius: 5px; font-weight: bold; z-index: 1000;';
+                document.body.prepend(scoreDisplay);
+            }
+            scoreDisplay.innerText = `Score: ${score} Points`;
+        }
+
+        function updateScore(numProblem) {
+            if (solvedChallenges.includes(numProblem)) {
+                return; 
+            }
+            
+            score += POINT_VALUE;
+            solvedChallenges.push(numProblem);
+
+            localStorage.setItem('ctf_score', score);
+            localStorage.setItem('ctf_solved', JSON.stringify(solvedChallenges));
+            
+            displayScore();
+
+            const card = document.querySelector(`.challenge-card[onclick="showProblem(${numProblem})"]`);
+            if (card) {
+                card.style.backgroundColor = '#d4edda';
+                card.style.borderColor = '#155724';
+                card.style.pointerEvents = 'none';
+            }
+        }
+
+        initializeScore();
+    </script>
+    </body>
+</html>
